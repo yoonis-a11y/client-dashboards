@@ -25,7 +25,11 @@
   --fg:#17150F; --fg-dim:#6B6355; --accent:#9A7C1C; --accent-soft:rgba(154,124,28,.12);
   --good:#2F7A52; --bad:#9B3B2F; color-scheme:light;
 }
-body{background:var(--bg);color:var(--fg);font-family:var(--font-body);line-height:1.5;}
+*,*::before,*::after{box-sizing:border-box;}
+html,body{margin:0;}
+img{max-width:100%;}
+[hidden]{display:none!important;}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);line-height:1.5;font-size:14px;}
 .wrap{max-width:1060px;margin:0 auto;
   padding-left:max(16px,env(safe-area-inset-left,0px));
   padding-right:max(16px,env(safe-area-inset-right,0px));
