@@ -139,7 +139,7 @@ footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);color:v
       <form id="entry">
         <div class="row">
           <div><label for="date">Date</label><input id="date" type="date"></div>
-          <div><label for="spend">Spend (£)</label><input id="spend" type="number" step="0.01" min="0" value="0"></div>
+          <div><label for="spend" id="spend-label">Spend</label><input id="spend" type="number" step="0.01" min="0" value="0"></div>
           <div><label for="impressions">Impressions</label><input id="impressions" type="number" min="0" value="0"></div>
           <div><label for="link_clicks">Link clicks</label><input id="link_clicks" type="number" min="0" value="0"></div>
           <div><label for="leads">Leads</label><input id="leads" type="number" min="0" value="0"></div>
@@ -197,7 +197,8 @@ const HASH = (location.hash || "#starlight").slice(1).replace(/[^a-z0-9-]/gi,"")
 const $ = id => document.getElementById(id);
 
 let code = "", isStaff = false, slug = HASH, days = 30;
-let money = v => "£" + Number(v).toFixed(2);
+const LOCALES = { USD:"en-US", GBP:"en-GB", EUR:"en-IE", CAD:"en-CA", AUD:"en-AU", NZD:"en-NZ" };
+let money = v => Number(v).toFixed(2);
 const nf = new Intl.NumberFormat("en-GB");
 const pct = v => (Number(v)*100).toFixed(2) + "%";
 const DASH = "—";
@@ -239,10 +240,11 @@ async function loadBoard(){
 
 function render(d, from, to){
   const c = d.client||{}, t = d.totals||{}, rows = d.daily||[];
-  if (c.currency && c.currency !== "GBP"){
-    const f = new Intl.NumberFormat("en-GB",{style:"currency",currency:c.currency});
-    money = v => f.format(Number(v));
-  }
+  const cur = c.currency || "GBP";
+  const f = new Intl.NumberFormat(LOCALES[cur] || "en-GB", { style:"currency", currency:cur });
+  money = v => f.format(Number(v));
+  const label = $("spend-label");
+  if (label) label.textContent = "Spend (" + cur + ")";
   if (c.logo_url){ $("logo").src = c.logo_url; $("logo").alt = c.name + " logo"; }
   if (c.name) $("cname").textContent = c.name;
   if (c.brand_accent) document.documentElement.style.setProperty("--accent", c.brand_accent);
