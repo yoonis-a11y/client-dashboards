@@ -1,0 +1,353 @@
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Starlight Performance</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one gated page. Team code adds a staff bar and an entry drawer above the client-facing report. */
+:root{
+  --bg:#0B0B0B; --surface:#141311; --surface-2:#1C1A17; --line:#2E2A24;
+  --fg:#F2EEE6; --fg-dim:#9A938A;
+  --accent:#D4B553; --accent-soft:rgba(212,181,83,.14);
+  --good:#6FB58A; --bad:#C96A5E;
+  --font-display:"Josefin Sans","Avenir Next",system-ui,sans-serif;
+  --font-body:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  --font-data:"IBM Plex Mono",ui-monospace,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme:light){
+  :root:not([data-theme="dark"]){
+    --bg:#F7F5F0; --surface:#FFFFFF; --surface-2:#F1EDE4; --line:#DFD8C9;
+    --fg:#17150F; --fg-dim:#6B6355; --accent:#9A7C1C; --accent-soft:rgba(154,124,28,.12);
+    --good:#2F7A52; --bad:#9B3B2F; color-scheme:light;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#F7F5F0; --surface:#FFFFFF; --surface-2:#F1EDE4; --line:#DFD8C9;
+  --fg:#17150F; --fg-dim:#6B6355; --accent:#9A7C1C; --accent-soft:rgba(154,124,28,.12);
+  --good:#2F7A52; --bad:#9B3B2F; color-scheme:light;
+}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);line-height:1.5;}
+.wrap{max-width:1060px;margin:0 auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:28px 56px;}
+h1,h2{margin:0;font-family:var(--font-display);font-weight:400;letter-spacing:.02em;text-wrap:balance;}
+
+/* gate */
+.gate{min-height:70vh;display:flex;flex-direction:column;justify-content:center;align-items:center;}
+.gate-card{width:100%;max-width:380px;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:32px 26px;display:flex;flex-direction:column;gap:14px;text-align:center;}
+.gate-card h1{font-size:1.5rem;letter-spacing:.14em;text-transform:uppercase;}
+.gate-card p{margin:0;color:var(--fg-dim);font-size:.88rem;}
+
+input,select,textarea{width:100%;box-sizing:border-box;background:var(--surface-2);border:1px solid var(--line);
+  border-radius:3px;padding:10px 12px;color:var(--fg);font-family:var(--font-data);font-size:.93rem;font-variant-numeric:tabular-nums;}
+select,textarea{font-family:var(--font-body);}
+textarea{resize:vertical;min-height:54px;}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+button{font-family:var(--font-body);cursor:pointer;}
+.btn{background:var(--accent);color:#14120B;border:none;border-radius:3px;padding:11px 18px;font-weight:600;font-size:.9rem;letter-spacing:.03em;}
+.btn:hover{filter:brightness(1.08);}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--fg-dim);padding:7px 13px;font-size:.8rem;font-weight:500;}
+.btn.ghost:hover{color:var(--accent);border-color:var(--accent);}
+.msg{font-size:.85rem;min-height:1.2em;}
+.msg.ok{color:var(--good);} .msg.bad{color:var(--bad);}
+
+/* staff bar */
+.staff{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface-2);border:1px solid var(--line);
+  border-radius:4px;padding:10px 12px;margin-bottom:18px;}
+.staff .tag{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:3px 9px;}
+.staff select{width:auto;min-width:190px;flex:1;}
+.staff .spacer{flex:1;}
+
+/* entry drawer */
+.drawer{border:1px solid var(--accent);border-radius:4px;background:var(--surface);padding:18px;margin-bottom:22px;}
+.drawer h2{font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
+.drawer .row{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));margin-bottom:14px;}
+label{display:block;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-dim);margin-bottom:5px;}
+.drawer .state{font-size:.8rem;color:var(--fg-dim);margin:0 0 14px;}
+.drawer .foot{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+
+/* identity */
+.band{display:flex;align-items:center;gap:18px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:20px;}
+.band img{width:62px;height:62px;border-radius:50%;background:#fff;object-fit:contain;flex:none;}
+.band-txt{min-width:0;flex:1;}
+.band h1{font-size:1.45rem;letter-spacing:.1em;text-transform:uppercase;}
+.band .sub{color:var(--fg-dim);font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;margin-top:3px;}
+.rule{height:2px;background:linear-gradient(90deg,var(--accent),transparent);margin-top:14px;}
+
+.bar{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:26px 0 18px;}
+.ranges{display:flex;gap:6px;flex-wrap:wrap;}
+.chip{background:transparent;border:1px solid var(--line);color:var(--fg-dim);border-radius:999px;padding:6px 14px;font-size:.8rem;letter-spacing:.05em;}
+.chip[aria-pressed=true]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);}
+.period{font-family:var(--font-data);font-size:.78rem;color:var(--fg-dim);}
+
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:16px 16px 14px;min-width:0;display:flex;flex-direction:column;gap:6px;}
+.tile .k{font-size:.7rem;letter-spacing:.13em;text-transform:uppercase;color:var(--fg-dim);}
+.tile .v{font-family:var(--font-data);font-variant-numeric:tabular-nums;font-size:1.6rem;font-weight:500;line-height:1.1;}
+.tile .n{font-size:.76rem;color:var(--fg-dim);}
+.tile.lead{border-color:var(--accent);background:linear-gradient(var(--accent-soft),transparent);}
+.tile .v.empty{color:var(--fg-dim);font-size:1.12rem;}
+
+.section-h{display:flex;align-items:baseline;gap:12px;margin:34px 0 12px;}
+.section-h h2{font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;color:var(--fg-dim);}
+.section-h .line{flex:1;height:1px;background:var(--line);}
+
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:4px;background:var(--surface);}
+table{border-collapse:collapse;width:100%;font-size:.84rem;}
+th,td{padding:9px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line);}
+th{font-size:.67rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-dim);font-weight:500;background:var(--surface-2);position:sticky;top:0;}
+td{font-family:var(--font-data);font-variant-numeric:tabular-nums;}
+th:first-child,td:first-child{text-align:left;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:var(--surface-2);}
+
+.empty-note{background:var(--surface);border:1px dashed var(--line);border-radius:4px;padding:26px;text-align:center;color:var(--fg-dim);font-size:.9rem;}
+.empty-note strong{display:block;color:var(--fg);font-family:var(--font-display);letter-spacing:.1em;text-transform:uppercase;font-size:.95rem;margin-bottom:8px;}
+footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);color:var(--fg-dim);font-size:.75rem;letter-spacing:.05em;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+
+<div class="wrap">
+
+  <section class="gate" id="gate">
+    <div class="gate-card">
+      <h1>Starlight</h1>
+      <p>Enter your access code to view advertising performance.</p>
+      <form id="gate-form">
+        <input id="code" type="password" autocomplete="off" placeholder="Access code" aria-label="Access code">
+        <div class="msg bad" id="gate-err" style="margin-top:10px"></div>
+        <button class="btn" type="submit" style="width:100%;margin-top:6px">View dashboard</button>
+      </form>
+    </div>
+  </section>
+
+  <section id="board" hidden>
+
+    <div class="staff" id="staff" hidden>
+      <span class="tag">AccountGro</span>
+      <select id="client" aria-label="Client"></select>
+      <span class="spacer"></span>
+      <button class="btn ghost" type="button" id="toggle-entry">Enter numbers</button>
+    </div>
+
+    <div class="drawer" id="drawer" hidden>
+      <h2>Record a day</h2>
+      <form id="entry">
+        <div class="row">
+          <div><label for="date">Date</label><input id="date" type="date"></div>
+          <div><label for="spend">Spend (£)</label><input id="spend" type="number" step="0.01" min="0" value="0"></div>
+          <div><label for="impressions">Impressions</label><input id="impressions" type="number" min="0" value="0"></div>
+          <div><label for="link_clicks">Link clicks</label><input id="link_clicks" type="number" min="0" value="0"></div>
+          <div><label for="leads">Leads</label><input id="leads" type="number" min="0" value="0"></div>
+        </div>
+        <div class="row">
+          <div><label for="calls_booked">Calls booked</label><input id="calls_booked" type="number" min="0" value="0"></div>
+          <div><label for="qualified_calls">Qualified</label><input id="qualified_calls" type="number" min="0" value="0"></div>
+          <div><label for="calls_showed">Showed up</label><input id="calls_showed" type="number" min="0" value="0"></div>
+          <div><label for="closes">Closed</label><input id="closes" type="number" min="0" value="0"></div>
+        </div>
+        <div style="margin-bottom:14px"><label for="note">Note (optional)</label><textarea id="note" placeholder="Anything that explains the day"></textarea></div>
+        <p class="state" id="state"></p>
+        <div class="foot">
+          <button class="btn" type="submit">Save day</button>
+          <button class="btn ghost" type="button" id="btn-yday">Yesterday</button>
+          <span class="msg" id="msg"></span>
+        </div>
+      </form>
+    </div>
+
+    <div class="band">
+      <img id="logo" alt="" src="">
+      <div class="band-txt">
+        <h1 id="cname">Starlight Bookkeeping</h1>
+        <div class="sub">Paid acquisition &middot; managed by AccountGro</div>
+      </div>
+    </div>
+    <div class="rule"></div>
+
+    <div class="bar">
+      <div class="ranges" id="ranges">
+        <button class="chip" data-days="7" aria-pressed="false">7 days</button>
+        <button class="chip" data-days="30" aria-pressed="true">30 days</button>
+        <button class="chip" data-days="90" aria-pressed="false">90 days</button>
+      </div>
+      <div class="period" id="period"></div>
+    </div>
+
+    <div class="grid" id="tiles"></div>
+
+    <div class="section-h"><h2>Daily detail</h2><div class="line"></div></div>
+    <div id="ledger"></div>
+
+    <footer>
+      <span id="stamp"></span>
+      <span>Figures from Meta plus booked-call records</span>
+    </footer>
+  </section>
+</div>
+
+<script>
+const BASE = "https://uiaseddtsxjixfybypbz.supabase.co/rest/v1/rpc/";
+const KEY  = "sb_publishable_Mu3Ym6wUvV7e1RequJURQw_V9_Lr2ZY";
+const HASH = (location.hash || "#starlight").slice(1).replace(/[^a-z0-9-]/gi,"") || "starlight";
+const $ = id => document.getElementById(id);
+
+let code = "", isStaff = false, slug = HASH, days = 30;
+let money = v => "£" + Number(v).toFixed(2);
+const nf = new Intl.NumberFormat("en-GB");
+const pct = v => (Number(v)*100).toFixed(2) + "%";
+const DASH = "—";
+try { code = sessionStorage.getItem("ag_code") || ""; } catch(e){}
+
+const ERRORS = {
+  denied:"That code isn't recognised.",
+  no_client:"That client no longer exists.",
+  not_found:"That access code doesn't match this dashboard.",
+  future_date:"You can't record a day that hasn't happened yet.",
+  shows_exceed_booked:"More calls showed up than were booked. Check those two numbers.",
+  closes_exceed_shows:"More calls closed than showed up. Check those two numbers.",
+  qualified_exceed_booked:"More calls are marked qualified than were booked."
+};
+
+async function rpc(fn, body){
+  const r = await fetch(BASE + fn, {
+    method:"POST",
+    headers:{apikey:KEY, Authorization:"Bearer "+KEY, "Content-Type":"application/json"},
+    body:JSON.stringify(body)
+  });
+  if (!r.ok) throw new Error("Couldn't reach the dashboard service.");
+  return r.json();
+}
+
+const iso = d => { const x = new Date(d.getTime() - d.getTimezoneOffset()*60000); return x.toISOString().slice(0,10); };
+function range(n){ const to=new Date(); return { from: iso(new Date(to.getTime()-(n-1)*86400000)), to: iso(to) }; }
+const fmtDate = s => new Date(s+"T00:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"});
+const num = id => Number($(id).value || 0);
+
+async function loadBoard(){
+  const { from, to } = range(days);
+  const d = isStaff
+    ? await rpc("admin_dashboard", { p_code: code, p_slug: slug, p_from: from, p_to: to })
+    : await rpc("get_dashboard",   { p_slug: slug, p_code: code, p_from: from, p_to: to });
+  if (d.error) throw new Error(ERRORS[d.error] || "Couldn't load that dashboard.");
+  render(d, from, to);
+}
+
+function render(d, from, to){
+  const c = d.client||{}, t = d.totals||{}, rows = d.daily||[];
+  if (c.currency && c.currency !== "GBP"){
+    const f = new Intl.NumberFormat("en-GB",{style:"currency",currency:c.currency});
+    money = v => f.format(Number(v));
+  }
+  if (c.logo_url){ $("logo").src = c.logo_url; $("logo").alt = c.name + " logo"; }
+  if (c.name) $("cname").textContent = c.name;
+  if (c.brand_accent) document.documentElement.style.setProperty("--accent", c.brand_accent);
+  $("period").textContent = fmtDate(from) + " — " + fmtDate(to);
+  $("stamp").textContent = "Updated " + new Date().toLocaleString("en-GB",{dateStyle:"medium",timeStyle:"short"});
+
+  const tiles = [
+    { k:"Link CTR", v: t.link_ctr!=null ? pct(t.link_ctr) : null, n: nf.format(t.link_clicks||0)+" link clicks" },
+    { k:"Impressions", v: t.impressions ? nf.format(t.impressions) : null, n:"Times the ads were shown" },
+    { k:"Cost per lead", v: t.cost_per_lead!=null ? money(t.cost_per_lead) : null, n: nf.format(t.leads||0)+" leads", lead:true },
+    { k:"Cost per call", v: t.cost_per_call!=null ? money(t.cost_per_call) : null, n: nf.format(t.calls_booked||0)+" calls booked", lead:true },
+    { k:"Cost per qualified call", v: t.cost_per_qualified_call!=null ? money(t.cost_per_qualified_call) : null, n: nf.format(t.qualified_calls||0)+" qualified", lead:true },
+    { k:"Show rate", v: t.show_rate!=null ? pct(t.show_rate) : null, n: nf.format(t.calls_showed||0)+" showed up" },
+    { k:"Close rate", v: t.close_rate!=null ? pct(t.close_rate) : null, n: nf.format(t.closes||0)+" closed, of those who showed" },
+    { k:"Spend", v: t.spend!=null ? money(t.spend) : null, n:"Media spend in this period" }
+  ];
+  $("tiles").innerHTML = tiles.map(x =>
+    '<div class="tile'+(x.lead?' lead':'')+'"><div class="k">'+x.k+'</div>'+
+    '<div class="v'+(x.v?'':' empty')+'">'+(x.v||"No data yet")+'</div>'+
+    '<div class="n">'+x.n+'</div></div>').join("");
+
+  if (!rows.length){
+    $("ledger").innerHTML = '<div class="empty-note"><strong>Nothing recorded yet</strong>'+
+      'Each day appears here with spend, impressions, link clicks and leads, alongside the calls booked, shows and closes recorded against it.</div>';
+    return;
+  }
+  const head = ["Date","Spend","Impr.","Clicks","CTR","Leads","CPL","Booked","Qual.","Showed","Closed","CPA"];
+  $("ledger").innerHTML = '<div class="scroll"><table><thead><tr>'+
+    head.map(h=>"<th>"+h+"</th>").join("")+"</tr></thead><tbody>"+
+    rows.map(r=>"<tr>"+[
+      fmtDate(r.stat_date), money(r.spend), nf.format(r.impressions), nf.format(r.link_clicks),
+      r.link_ctr!=null?pct(r.link_ctr):DASH, nf.format(r.leads),
+      r.cost_per_lead!=null?money(r.cost_per_lead):DASH, nf.format(r.calls_booked),
+      nf.format(r.qualified_calls), nf.format(r.calls_showed), nf.format(r.closes),
+      r.cost_per_call!=null?money(r.cost_per_call):DASH
+    ].map(v=>"<td>"+v+"</td>").join("")+"</tr>").join("")+"</tbody></table></div>";
+}
+
+async function loadDay(){
+  if (!isStaff) return;
+  const date = $("date").value;
+  if (!date) return;
+  const d = await rpc("get_day", { p_code: code, p_slug: slug, p_date: date });
+  if (d.error){ $("state").textContent = ERRORS[d.error] || "Couldn't load that day."; return; }
+  ["spend","impressions","link_clicks","leads","calls_booked","qualified_calls","calls_showed","closes"]
+    .forEach(k => { $(k).value = d[k]; });
+  $("note").value = d.note || "";
+  $("state").textContent = d.exists
+    ? "Figures already exist for this day — saving replaces them."
+    : "Nothing recorded for this day yet.";
+}
+
+async function enter(){
+  const client = await rpc("get_dashboard", { p_slug: slug, p_code: code, p_from: iso(new Date()), p_to: iso(new Date()) });
+  if (!client.error){ isStaff = false; await loadBoard(); return reveal(); }
+  const adm = await rpc("admin_clients", { p_code: code });
+  if (adm.error) throw new Error(ERRORS.not_found);
+  isStaff = true;
+  $("client").innerHTML = adm.clients.map(c=>'<option value="'+c.slug+'">'+c.name+"</option>").join("");
+  if (adm.clients.some(c=>c.slug===slug)) $("client").value = slug; else slug = $("client").value;
+  $("staff").hidden = false;
+  $("date").max = iso(new Date());
+  $("date").value = iso(new Date());
+  await loadBoard();
+  await loadDay();
+  reveal();
+}
+function reveal(){
+  $("gate").hidden = true; $("board").hidden = false;
+  try { sessionStorage.setItem("ag_code", code); } catch(e){}
+}
+
+$("gate-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  code = $("code").value.trim();
+  $("gate-err").textContent = "";
+  try { await enter(); } catch(err){ $("gate-err").textContent = err.message; }
+});
+$("ranges").addEventListener("click", e => {
+  const b = e.target.closest("button[data-days]"); if (!b) return;
+  days = Number(b.dataset.days);
+  [...$("ranges").children].forEach(c => c.setAttribute("aria-pressed", c===b));
+  loadBoard().catch(()=>{});
+});
+$("toggle-entry").addEventListener("click", () => {
+  const d = $("drawer"); d.hidden = !d.hidden;
+  $("toggle-entry").textContent = d.hidden ? "Enter numbers" : "Hide entry";
+});
+$("client").addEventListener("change", async () => { slug = $("client").value; await loadBoard(); await loadDay(); });
+$("date").addEventListener("change", loadDay);
+$("btn-yday").addEventListener("click", () => { $("date").value = iso(new Date(Date.now()-86400000)); loadDay(); });
+
+$("entry").addEventListener("submit", async e => {
+  e.preventDefault();
+  const m = $("msg"); m.className = "msg"; m.textContent = "Saving…";
+  try{
+    const res = await rpc("upsert_day", {
+      p_code: code, p_slug: slug, p_date: $("date").value,
+      p_spend: num("spend"), p_impressions: num("impressions"),
+      p_link_clicks: num("link_clicks"), p_leads: num("leads"),
+      p_calls_booked: num("calls_booked"), p_qualified_calls: num("qualified_calls"),
+      p_calls_showed: num("calls_showed"), p_closes: num("closes"),
+      p_note: $("note").value || null
+    });
+    if (res.error){ m.className="msg bad"; m.textContent = ERRORS[res.error] || "Couldn't save."; return; }
+    m.className="msg ok"; m.textContent = "Saved.";
+    await loadBoard(); await loadDay();
+  } catch(err){ m.className="msg bad"; m.textContent = err.message; }
+});
+
+if (code) enter().catch(()=>{ code=""; });
+</script>
